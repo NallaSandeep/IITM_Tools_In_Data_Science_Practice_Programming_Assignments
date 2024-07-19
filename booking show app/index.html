@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siri Tours and Travels - Ticket Booking</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .left-pane {
+            flex: 1;
+            padding: 20px;
+        }
+        .right-pane {
+            flex: 1;
+            background-color: #e0e0e0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input, button {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .person-details {
+            border: 1px solid #bdc3c7;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #ecf0f1;
+        }
+        #bookingDetails div {
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #submissionData {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable, #printable * {
+                visibility: visible;
+            }
+            #printable {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+        #printable {
+            display: none;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        #printable h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #printable .booking-summary {
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        #printable .person-summary {
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        #printable .total-summary {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Siri Tours and Travels</h1>
+    <div class="container">
+        <div class="left-pane">
+            <h2>Ticket Booking Form</h2>
+            <form id="bookingForm">
+                <div id="personDetails">
+                    <div class="person-details">
+                        <input type="text" name="name" placeholder="Name">
+                        <input type="number" name="age" placeholder="Age">
+                        <input type="text" name="aadhar" placeholder="Aadhar Number">
+                        <input type="date" name="dob" placeholder="Date of Birth">
+                        <input type="number" name="price" placeholder="Price">
+                        <input type="text" name="discount" placeholder="Discount (value)">
+                    </div>
+                </div>
+                <button type="button" id="addPerson">Add Person</button>
+                <input type="text" id="overallDiscount" value='0' placeholder="Overall Discount (% or value)" hidden>
+                <button type="button" id="printButton">Print</button>
+                <!--<button type="button" id="saveButton">Save</button>
+                <button type="button" id="saveAndPrintButton">Save & Print</button>-->
+            </form>
+        </div>
+        <div class="right-pane">
+            <h2>Booking Details</h2>
+            <div id="bookingDetails"></div>
+            <h3>Total Price: <span id="totalPrice">₹0</span></h3>
+        </div>
+    </div>
+    <div id="submissionData" style="display: none;">
+        <h2>Submission Data</h2>
+        <p>Your booking has been saved to a local CSV file.</p>
+    </div>
+    <div id="printable">
+        <h1>Siri Tours and Travels</h1>
+        <div class="booking-summary">
+            <h2>Booking Details</h2>
+            <div id="printableDetails"></div>
+            <div class="total-summary">
+                <p>Total Price: <span id="printableTotalPrice">₹0</span></p>
+                <p>Overall Discount: <span id="printableOverallDiscount">₹0</span></p>
+                <p>Final Price: <span id="printableFinalPrice">₹0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('bookingForm');
+        const addPersonBtn = document.getElementById('addPerson');
+        const personDetails = document.getElementById('personDetails');
+        const bookingDetails = document.getElementById('bookingDetails');
+        const totalPriceDisplay = document.getElementById('totalPrice');
+        const submissionData = document.getElementById('submissionData');
+        const printButton = document.getElementById('printButton');
+        const saveButton = document.getElementById('saveButton');
+        const saveAndPrintButton = document.getElementById('saveAndPrintButton');
+        const printableDetails = document.getElementById('printableDetails');
+        const printableTotalPrice = document.getElementById('printableTotalPrice');
+        const printableOverallDiscount = document.getElementById('printableOverallDiscount');
+        const printableFinalPrice = document.getElementById('printableFinalPrice');
+        const overallDiscountInput = document.getElementById('overallDiscount');
+
+        addPersonBtn.addEventListener('click', () => {
+            const newPerson = personDetails.children[0].cloneNode(true);
+            Array.from(newPerson.children).forEach(input => input.value = '');
+            personDetails.appendChild(newPerson);
+        });
+
+        form.addEventListener('input', updateBookingDetails);
+        printButton.addEventListener('click', () => handlePrint());
+        saveButton.addEventListener('click', () => handleSave());
+        saveAndPrintButton.addEventListener('click', () => { handleSave(); handlePrint(); });
+
+        function updateBookingDetails() {
+            bookingDetails.innerHTML = '';
+            printableDetails.innerHTML = '';
+            let totalPrice = 0;
+            let totalDiscount = 0;
+
+            Array.from(personDetails.children).forEach((person, index) => {
+                const inputs = Array.from(person.children);
+                const price = parseFloat(inputs[4].value) || 0;
+                const discount = parseDiscount(inputs[5].value, price);
+                const discountedPrice = price - discount;
+                totalPrice += discountedPrice;
+                totalDiscount += discount;
+
+                const details = `
+                    <strong>Person ${index + 1}</strong><br>
+                    Name: ${inputs[0].value}<br>
+                    Age: ${inputs[1].value}<br>
+                    Aadhar: ${inputs[2].value}<br>
+                    DOB: ${inputs[3].value}<br>
+                    Price: ₹${price.toFixed(2)}<br>
+                    Discount: - ₹${discount.toFixed(2)}<br>
+                    Total Price: ₹${discountedPrice.toFixed(2)}
+                `;
+                const detailsDiv = document.createElement('div');
+                detailsDiv.innerHTML = details;
+                bookingDetails.appendChild(detailsDiv);
+                printableDetails.innerHTML += `<div class="person-summary">${details}</div>`;
+            });
+
+            const overallDiscount = parseDiscount(overallDiscountInput.value, totalPrice);
+            const finalPrice = totalPrice - overallDiscount;
+
+            totalPriceDisplay.textContent = `₹${totalPrice.toFixed(2)}`;
+            printableTotalPrice.textContent = `₹${totalPrice.toFixed(2)}`;
+            printableOverallDiscount.textContent = `₹${overallDiscount.toFixed(2)}`;
+            printableFinalPrice.textContent = `₹${finalPrice.toFixed(2)}`;
+        }
+
+        function parseDiscount(discountStr, price) {
+            if (!discountStr) return 0;
+            if (discountStr.includes('%')) {
+                const percentage = parseFloat(discountStr) || 0;
+                return (percentage / 100) * price;
+            }
+            return parseFloat(discountStr) || 0;
+        }
+
+        function handleSave() {
+            const formData = [['Name', 'Age', 'Aadhar Number', 'Date of Birth', 'Price', 'Discount']];
+            Array.from(personDetails.children).forEach(person => {
+                const inputs = Array.from(person.children);
+                formData.push([
+                    inputs[0].value,
+                    inputs[1].value,
+                    inputs[2].value,
+                    inputs[3].value,
+                    inputs[4].value,
+                    inputs[5].value
+                ]);
+            });
+            formData.push(['Overall Discount', overallDiscountInput.value]);
+
+            const csv = Papa.unparse(formData);
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            if (navigator.msSaveBlob) {
+                navigator.msSaveBlob(blob, 'ticket_bookings.csv');
+            } else {
+                link.href = URL.createObjectURL(blob);
+                link.download = 'ticket_bookings.csv';
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            submissionData.style.display = 'block';
+            alert('Booking saved successfully! The data has been saved to ticket_bookings.csv');
+        }
+
+        function handlePrint() {
+            updateBookingDetails();
+            window.print();
+        }
+    </script>
+</body>
+</html>
