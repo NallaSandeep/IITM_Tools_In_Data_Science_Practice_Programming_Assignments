@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Addresses>
+    <Address>
+        <Name>John Doe</Name>
+        <Street>123 Main St</Street>
+        <City>New York</City>
+        <State>NY</State>
+        <PostalCode>10001</PostalCode>
+        <Country>USA</Country>
+    </Address>
+    <Address>
+        <Name>Jane Smith</Name>
+        <Street>456 Elm St</Street>
+        <City>Los Angeles</City>
+        <State>CA</State>
+        <PostalCode>90001</PostalCode>
+        <Country>USA</Country>
+    </Address>
+    <Address>
+        <Name>Mike Johnson</Name>
+        <Street>789 Oak St</Street>
+        <City>Chicago</City>
+        <State>IL</State>
+        <PostalCode>60601</PostalCode>
+        <Country>USA</Country>
+    </Address>
+    <Address>
+        <Name>Emily Davis</Name>
+        <Street>321 Pine St</Street>
+        <City>Houston</City>
+        <State>TX</State>
+        <PostalCode>77001</PostalCode>
+        <Country>USA</Country>
+    </Address>
+</Addresses>

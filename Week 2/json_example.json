@@ -1,0 +1,36 @@
+{
+  "addresses": [
+    {
+      "name": "John Doe",
+      "street": "123 Main St",
+      "city": "New York",
+      "state": "NY",
+      "postalCode": "10001",
+      "country": "USA"
+    },
+    {
+      "name": "Jane Smith",
+      "street": "456 Elm St",
+      "city": "Los Angeles",
+      "state": "CA",
+      "postalCode": "90001",
+      "country": "USA"
+    },
+    {
+      "name": "Mike Johnson",
+      "street": "789 Oak St",
+      "city": "Chicago",
+      "state": "IL",
+      "postalCode": "60601",
+      "country": "USA"
+    },
+    {
+      "name": "Emily Davis",
+      "street": "321 Pine St",
+      "city": "Houston",
+      "state": "TX",
+      "postalCode": "77001",
+      "country": "USA"
+    }
+  ]
+}
